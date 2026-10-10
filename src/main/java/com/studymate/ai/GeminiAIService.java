@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * GeminiAIService connects to the Google Gemini API.
@@ -23,6 +24,11 @@ public class GeminiAIService implements AIService {
 
     @Value("${gemini.api.key:}")
     private String apiKey;
+
+    @Override
+    public void setApiKey(String key) {
+        this.apiKey = key;
+    }
 
     private static final List<String> MODEL_CANDIDATES = List.of(
         "gemini-2.5-flash",
@@ -133,9 +139,35 @@ public class GeminiAIService implements AIService {
     }
 
     @Override
-    public Quiz generateQuiz(String topic, String difficulty) {
-        // Delegate to mock — parsing structured JSON from LLM is fragile
-        return mock.generateQuiz(topic, difficulty);
+    public Quiz generateQuiz(String topic, String difficulty, int count) {
+        String prompt = "Generate a " + difficulty + " difficulty multiple-choice quiz about " + topic + " with exactly " + count + " questions.\n" +
+            "Return ONLY raw JSON, with no markdown formatting or backticks, exactly matching this schema:\n" +
+            "{\n" +
+            "  \"topic\": \"" + topic + "\",\n" +
+            "  \"difficulty\": \"" + difficulty + "\",\n" +
+            "  \"questions\": [\n" +
+            "    {\n" +
+            "      \"text\": \"question text\",\n" +
+            "      \"options\": [\"Option A\", \"Option B\", \"Option C\", \"Option D\"],\n" +
+            "      \"correctAnswer\": \"Exact string of the correct option\",\n" +
+            "      \"explanation\": \"Why it is correct\"\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+            
+        String result = callGemini(prompt);
+        if (result != null) {
+            try {
+                // Remove any accidental markdown backticks just in case
+                String cleanResult = result.replace("```json", "").replace("```", "").trim();
+                ObjectMapper mapper = new ObjectMapper();
+                return mapper.readValue(cleanResult, Quiz.class);
+            } catch (Exception e) {
+                // If parsing fails, fallback to mock
+                System.err.println("Failed to parse Gemini quiz JSON: " + e.getMessage());
+            }
+        }
+        return mock.generateQuiz(topic, difficulty, count);
     }
 
     @Override

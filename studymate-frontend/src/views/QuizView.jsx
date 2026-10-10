@@ -6,15 +6,33 @@ import { api } from '../api';
 const QuizView = ({ user, onQuizComplete }) => {
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState('Beginner');
+  const [numQuestions, setNumQuestions] = useState(5);
   const [quiz, setQuiz] = useState(null);
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState(null);
   const [result, setResult] = useState(null);
   const [score, setScore] = useState(0);
 
+  const clearQuiz = () => {
+    setTopic('');
+    setDifficulty('Beginner');
+    setNumQuestions(5);
+    setQuiz(null);
+    setCurrentQ(0);
+    setSelected(null);
+    setResult(null);
+    setScore(0);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      startQuiz();
+    }
+  };
+
   const startQuiz = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/ai/quiz?topic=${encodeURIComponent(topic || 'DSA')}&difficulty=${encodeURIComponent(difficulty)}`);
+      const response = await fetch(`http://localhost:8080/api/ai/quiz?topic=${encodeURIComponent(topic || 'DSA')}&difficulty=${encodeURIComponent(difficulty)}&count=${numQuestions}`);
       const data = await response.json();
       setQuiz(data);
       setCurrentQ(0);
@@ -70,17 +88,24 @@ const QuizView = ({ user, onQuizComplete }) => {
       <NeoCard bg="#FFFFFF" style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <label style={{ fontWeight: 'bold' }}>Topic</label>
-          <input type="text" className="neo-input" placeholder="e.g. Binary Search" value={topic} onChange={e => setTopic(e.target.value)} />
+          <input type="text" className="neo-input" placeholder="e.g. Binary Search" value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={handleKeyDown} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <label style={{ fontWeight: 'bold' }}>Questions</label>
+          <input type="number" className="neo-input" min="1" max="20" style={{ width: '100px' }} value={numQuestions} onChange={e => setNumQuestions(e.target.value)} onKeyDown={handleKeyDown} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <label style={{ fontWeight: 'bold' }}>Difficulty</label>
-          <select className="neo-input" style={{ padding: '12px 16px' }} value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+          <select className="neo-input" style={{ padding: '12px 16px' }} value={difficulty} onChange={e => setDifficulty(e.target.value)} onKeyDown={handleKeyDown}>
             <option>Beginner</option>
             <option>Intermediate</option>
             <option>Advanced</option>
           </select>
         </div>
-        <NeoButton action onClick={startQuiz}>START QUIZ →</NeoButton>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <NeoButton action onClick={startQuiz}>START QUIZ →</NeoButton>
+          <NeoButton onClick={clearQuiz} style={{ backgroundColor: '#FFCDD2', color: '#1A1A1A' }}>CLEAR</NeoButton>
+        </div>
       </NeoCard>
 
       {isFinished && (

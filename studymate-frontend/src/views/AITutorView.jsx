@@ -79,11 +79,19 @@ const AITutorView = ({ user, initialQuestion, messages, setMessages }) => {
   const [input, setInput] = useState(initialQuestion || '');
   const [loading, setLoading] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState(null);
+  const [feedback, setFeedback] = useState({});
+  const [showScrollDown, setShowScrollDown] = useState(false);
   const chatRef = useRef(null);
   const inputRef = useRef(null);
 
   const scrollToBottom = () =>
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' });
+
+  const handleScroll = () => {
+    if (!chatRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
+    setShowScrollDown(scrollHeight - scrollTop - clientHeight > 100);
+  };
 
   useEffect(() => { scrollToBottom(); }, [messages]);
   useEffect(() => { if (initialQuestion?.trim()) handleAsk(initialQuestion); }, []);
@@ -140,7 +148,7 @@ const AITutorView = ({ user, initialQuestion, messages, setMessages }) => {
       </div>
 
       {/* Messages */}
-      <div ref={chatRef} style={{ flex: 1, overflowY: 'auto', padding: '28px 0 10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div ref={chatRef} onScroll={handleScroll} style={{ flex: 1, overflowY: 'auto', padding: '28px 0 10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {messages.map((msg, idx) => {
           const isUser = msg.sender === 'YOU';
           const isSystem = msg.sender === 'SYSTEM';
@@ -161,6 +169,8 @@ const AITutorView = ({ user, initialQuestion, messages, setMessages }) => {
             </div>
           );
 
+          const isLastMessage = idx === messages.length - 1;
+
           return (
             <div key={idx} style={{ width: '100%', maxWidth: '740px', padding: '0 24px', marginBottom: '32px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
@@ -169,26 +179,31 @@ const AITutorView = ({ user, initialQuestion, messages, setMessages }) => {
               </div>
               <div style={{ paddingLeft: '46px' }}>
                 {renderMessage(msg.text)}
-                <div style={{ display: 'flex', gap: '8px', marginTop: '18px', flexWrap: 'wrap' }}>
-                  {QUICK_ACTIONS.map(action => (
-                    <button key={action} onClick={() => handleAsk(action)} style={{ background: '#FFF', border: '2px solid #1a1a1a', borderRadius: '4px', color: '#1a1a1a', padding: '6px 14px', fontSize: '13px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', boxShadow: '2px 2px 0px #1A1A1A' }}>
-                      {action}
-                    </button>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                  {[
-                    { icon: <CopyIcon />, label: 'COPY', fn: () => handleCopy(msg.text, idx) },
-                    { icon: <ThumbUpIcon />, label: 'GOOD', fn: () => {} },
-                    { icon: <ThumbDnIcon />, label: 'BAD', fn: () => {} },
-                    { icon: <RefreshIcon />, label: 'REGENERATE', fn: () => handleAsk(messages.slice(0, idx).filter(m => m.sender === 'YOU').at(-1)?.text || '') },
-                  ].map(({ icon, label, fn }) => (
-                    <button key={label} title={label} onClick={fn} style={{ background: '#FFF', border: '2px solid #1a1a1a', color: '#1a1a1a', cursor: 'pointer', padding: '6px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'inherit', fontWeight: 900, fontSize: '12px', boxShadow: '2px 2px 0px #1A1A1A' }}>
-                      {icon}
-                      {copiedIdx === idx && label === 'COPY' && <span style={{ fontSize: '11px', color: '#1a1a1a', fontWeight: 900 }}>COPIED!</span>}
-                    </button>
-                  ))}
-                </div>
+                
+                {isLastMessage && !loading && (
+                  <>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '18px', flexWrap: 'wrap' }}>
+                      {QUICK_ACTIONS.map(action => (
+                        <button key={action} onClick={() => handleAsk(action)} style={{ background: '#FFF', border: '2px solid #1a1a1a', borderRadius: '4px', color: '#1a1a1a', padding: '6px 14px', fontSize: '13px', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', boxShadow: '2px 2px 0px #1A1A1A' }}>
+                          {action}
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                      {[
+                        { icon: <CopyIcon />, label: 'COPY', fn: () => handleCopy(msg.text, idx), bg: '#FFF' },
+                        { icon: <ThumbUpIcon />, label: 'GOOD', fn: () => setFeedback(prev => ({ ...prev, [idx]: 'up' })), bg: feedback[idx] === 'up' ? '#8FD6B0' : '#FFF' },
+                        { icon: <ThumbDnIcon />, label: 'BAD', fn: () => setFeedback(prev => ({ ...prev, [idx]: 'down' })), bg: feedback[idx] === 'down' ? '#FFCDD2' : '#FFF' },
+                        { icon: <RefreshIcon />, label: 'REGENERATE', fn: () => handleAsk(messages.slice(0, idx).filter(m => m.sender === 'YOU').at(-1)?.text || ''), bg: '#FFF' },
+                      ].map(({ icon, label, fn, bg }) => (
+                        <button key={label} title={label} onClick={fn} style={{ background: bg, border: '2px solid #1a1a1a', color: '#1a1a1a', cursor: 'pointer', padding: '6px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'inherit', fontWeight: 900, fontSize: '12px', boxShadow: '2px 2px 0px #1A1A1A', transition: 'background 0.2s' }}>
+                          {icon}
+                          {copiedIdx === idx && label === 'COPY' && <span style={{ fontSize: '11px', color: '#1a1a1a', fontWeight: 900 }}>COPIED!</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           );
@@ -212,6 +227,15 @@ const AITutorView = ({ user, initialQuestion, messages, setMessages }) => {
 
       {/* Bottom input */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '24px 20px 24px', background: 'linear-gradient(to top, #FFF8E7 85%, transparent)', display: 'flex', flexDirection: 'column', alignItems: 'center', pointerEvents: 'none', zIndex: 10 }}>
+        {showScrollDown && (
+          <button 
+            onClick={scrollToBottom}
+            className="neo-shadow"
+            style={{ pointerEvents: 'auto', marginBottom: '16px', background: '#FFF', border: '3px solid #1a1a1a', borderRadius: '50%', width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#1a1a1a' }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        )}
         <div className="neo-shadow" style={{ pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '740px', background: '#FFF', border: '3px solid #1A1A1A', borderRadius: '8px', padding: '8px 12px 8px 18px' }}>
           <input
             ref={inputRef}

@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import NeoCard from '../components/NeoCard';
 import NeoButton from '../components/NeoButton';
+import { api } from '../api';
 
 const ProfileSettingsView = ({ user }) => {
+  const [apiKey, setApiKey] = useState('');
+  const [status, setStatus] = useState('');
 
   const Row = ({ label, value }) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -42,19 +45,45 @@ const ProfileSettingsView = ({ user }) => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '20px', alignItems: 'center' }}>
               <div style={{ fontWeight: 'bold' }}>AI API Key</div>
-              <input type="password" value="*****************" readOnly className="neo-input" />
+              <input 
+                type="password" 
+                value={apiKey} 
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Enter new Gemini API Key..." 
+                className="neo-input" 
+              />
               
-              <div style={{ fontWeight: 'bold' }}>Database URL</div>
-              <input type="text" value="jdbc:mysql://localhost:3306/studymate" readOnly className="neo-input" />
-
               <div style={{ fontWeight: 'bold' }}>Default Difficulty</div>
               <select className="neo-input" style={{ padding: '8px 16px' }}>
                 <option>Beginner</option>
+                <option>Intermediate</option>
+                <option>Advanced</option>
               </select>
             </div>
 
-            <div style={{ marginTop: '10px' }}>
-              <NeoButton action>SAVE SETTINGS</NeoButton>
+            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <NeoButton 
+                action 
+                onClick={() => {
+                  if (!apiKey.trim()) return;
+                  setStatus('Saving...');
+                  fetch('http://localhost:8080/api/ai/key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: apiKey })
+                  })
+                  .then(res => {
+                    if (res.ok) {
+                      setStatus('✅ Saved! Restarting not required.');
+                      setApiKey('');
+                    } else throw new Error();
+                  })
+                  .catch(() => setStatus('❌ Failed to save'));
+                }}
+              >
+                SAVE SETTINGS
+              </NeoButton>
+              {status && <span style={{ fontWeight: 'bold', fontSize: '14px', color: status.includes('❌') ? '#FF6B6B' : '#8FD6B0' }}>{status}</span>}
             </div>
           </NeoCard>
         </div>

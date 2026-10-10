@@ -14,40 +14,7 @@ import ProgressView from './views/ProgressView';
 import ProfileSettingsView from './views/ProfileSettingsView';
 import { api } from './api';
 
-// --- Dashboard Stats Component (live data) ---
-const DashboardStats = ({ user, setActiveTab, refreshKey }) => {
-  const [stats, setStats] = useState({ totalTopics: 0, totalQuestions: 0, avgScore: 0, streak: 0 });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user?.id) return;
-    setLoading(true);
-    api.getStats(user.id)
-      .then(data => setStats(data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [user, refreshKey]);
-
-  const cards = [
-    { label: 'TOPICS LEARNED', value: loading ? '...' : stats.totalTopics, color: '#C9B8F5', tab: 'Progress' },
-    { label: 'QUIZ AVERAGE',   value: loading ? '...' : `${stats.avgScore}%`, color: '#F5A868', tab: 'Quizzes' },
-    { label: 'STUDY STREAK',   value: loading ? '...' : `${stats.streak} 🔥`, color: '#F5D876', tab: 'Progress' },
-    { label: 'QUESTIONS DONE', value: loading ? '...' : stats.totalQuestions, color: '#8FD6B0', tab: 'Progress' },
-  ];
-
-  return (
-    <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-      {cards.map(card => (
-        <NeoCard key={card.label} bg={card.color}
-          style={{ flex: 1, minWidth: '160px', cursor: 'pointer' }}
-          onClick={() => setActiveTab(card.tab)}>
-          <div style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '13px' }}>{card.label}</div>
-          <div style={{ fontSize: '44px', fontWeight: 900 }}>{card.value}</div>
-        </NeoCard>
-      ))}
-    </div>
-  );
-};
+// Removed duplicate DashboardStats component as it's handled in ProgressView
 
 // --- Time-aware greeting ---
 const getGreeting = () => {
@@ -97,43 +64,59 @@ function App() {
   }
 
   const renderDashboard = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', alignItems: 'center', textAlign: 'center', paddingTop: '40px' }}>
       <div>
-        <h1 style={{ fontSize: '36px', marginBottom: '8px' }}>{getGreeting()}, {(user?.name || 'STUDENT').toUpperCase()} 👋</h1>
-        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#555' }}>WHAT DO YOU WANT TO LEARN TODAY?</h2>
+        <h1 style={{ fontSize: '48px', fontWeight: 900, marginBottom: '16px', letterSpacing: '-1px' }}>
+          {getGreeting()}, <span style={{ color: '#F5A868' }}>{(user?.name || 'STUDENT').toUpperCase()}</span> 👋
+        </h1>
+        <h2 style={{ fontSize: '20px', fontWeight: 'normal', color: '#555', maxWidth: '600px', margin: '0 auto' }}>
+          Welcome to StudyMate AI. Your personal, intelligent study companion. What would you like to master today?
+        </h2>
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+      <NeoCard bg="#FFFFFF" style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%', maxWidth: '800px', padding: '24px', borderRadius: '24px' }}>
         <input
           type="text"
-          placeholder='🔍 Ask anything... "Explain Photosynthesis"'
+          placeholder='🔍 Ask your AI Tutor anything... e.g. "Explain Graph BFS"'
           className="neo-input"
-          style={{ flexGrow: 1, maxWidth: '800px' }}
+          style={{ flexGrow: 1, fontSize: '18px', padding: '16px 24px', borderRadius: '16px' }}
           value={dashSearch}
           onChange={e => setDashSearch(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleDashSearch()}
         />
-        <NeoButton action onClick={handleDashSearch}>ASK AI →</NeoButton>
-      </div>
+        <NeoButton action onClick={handleDashSearch} style={{ padding: '18px 32px', fontSize: '16px', borderRadius: '16px' }}>ASK AI →</NeoButton>
+      </NeoCard>
 
-      <DashboardStats user={user} setActiveTab={setActiveTab} refreshKey={statsRefreshKey} />
-
-      <div>
-        <h2 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '16px' }}>QUICK ACCESS</h2>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {[
-            { label: '🤖 AI Tutor', desc: 'Ask any study question', tab: 'AI Tutor', color: '#C9B8F5' },
-            { label: '📚 Topics',   desc: 'Structured explanations', tab: 'Topics',   color: '#8FD6B0' },
-            { label: '💻 Code',     desc: 'Analyze & debug code',   tab: 'Code',     color: '#F5D876' },
-            { label: '📝 Quizzes',  desc: 'Test your knowledge',    tab: 'Quizzes',  color: '#F5A868' },
-          ].map(q => (
-            <NeoCard key={q.label} bg={q.color} style={{ flex: 1, minWidth: '180px', cursor: 'pointer' }}
-              onClick={() => setActiveTab(q.tab)}>
-              <div style={{ fontWeight: 900, fontSize: '16px', marginBottom: '6px' }}>{q.label}</div>
-              <div style={{ fontSize: '13px', color: '#444' }}>{q.desc}</div>
-            </NeoCard>
-          ))}
-        </div>
+      <div style={{ width: '100%', maxWidth: '1000px', marginTop: '60px', display: 'flex', flexDirection: 'column', gap: '40px', paddingBottom: '60px' }}>
+        {[
+          { label: 'Chat with AI Tutor', desc: 'Ask questions and get instant, interactive help. The AI Tutor remembers your conversation history and provides tailored, deep explanations on any subject.', tab: 'AI Tutor', color: '#C9B8F5', emoji: '💬' },
+          { label: 'Study Topics',   desc: 'Get structured breakdowns of complex subjects. We break down the definition, intuition, real-world examples, and advanced details of any concept.', tab: 'Topics',   color: '#8FD6B0', emoji: '📖' },
+          { label: 'Take a Quiz',  desc: 'Test your knowledge with dynamic AI quizzes. Every quiz is generated specifically for you by the LLM to test your mastery.',    tab: 'Quizzes',  color: '#F5A868', emoji: '🎯' },
+          { label: 'Analyze Code',     desc: 'Paste code to get a line-by-line breakdown. Find bugs, understand time and space complexity, and learn coding best practices.',   tab: 'Code',     color: '#F5D876', emoji: '🛠️' },
+          { label: 'Track Progress',     desc: 'View your study streaks, total questions answered, and quiz mastery levels over time to stay motivated.',   tab: 'Progress',     color: '#E0E0E0', emoji: '📈' },
+        ].map((q, i) => (
+          <NeoCard key={q.label} bg={q.color} 
+            style={{ 
+              cursor: 'pointer', 
+              display: 'flex', 
+              flexDirection: i % 2 === 0 ? 'row' : 'row-reverse', 
+              alignItems: 'center',
+              gap: '40px',
+              padding: '40px',
+              transition: 'transform 0.2s',
+              minHeight: '250px'
+            }}
+            onClick={() => setActiveTab(q.tab)}
+          >
+            <div style={{ flex: '1', display: 'flex', justifyContent: 'center', fontSize: '100px', filter: 'drop-shadow(4px 4px 0px #1A1A1A)' }}>
+              {q.emoji}
+            </div>
+            <div style={{ flex: '2', textAlign: i % 2 === 0 ? 'left' : 'right' }}>
+              <div style={{ fontWeight: 900, fontSize: '32px', marginBottom: '16px' }}>{q.label}</div>
+              <div style={{ fontSize: '18px', color: '#333', lineHeight: 1.6, fontWeight: '500' }}>{q.desc}</div>
+            </div>
+          </NeoCard>
+        ))}
       </div>
     </div>
   );

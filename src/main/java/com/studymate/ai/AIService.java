@@ -8,6 +8,7 @@ public interface AIService {
     String rawPrompt(String prompt);
     String explainTopic(String topic, String level);
     String explainCode(String code, String language);
-    Quiz generateQuiz(String topic, String difficulty);
+    Quiz generateQuiz(String topic, String difficulty, int count);
     Diagram generateDiagram(String topic);
+    void setApiKey(String key);
 }

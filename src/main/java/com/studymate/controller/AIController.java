@@ -42,13 +42,42 @@ public class AIController {
     }
 
     @GetMapping("/quiz")
-    public Quiz generateQuiz(@RequestParam String topic, @RequestParam String difficulty) {
-        return aiService.generateQuiz(topic, difficulty);
+    public Quiz generateQuiz(@RequestParam String topic, @RequestParam String difficulty, @RequestParam(defaultValue = "5") int count) {
+        return aiService.generateQuiz(topic, difficulty, count);
     }
 
     @GetMapping("/diagram")
     public Diagram generateDiagram(@RequestParam String topic) {
         return aiService.generateDiagram(topic);
+    }
+
+    @PostMapping("/key")
+    public ResponseEntity<String> updateApiKey(@RequestBody java.util.Map<String, String> body) {
+        String key = body.get("key");
+        if (key == null || key.isBlank()) return ResponseEntity.badRequest().body("Key is empty");
+        
+        // Update in-memory
+        aiService.setApiKey(key);
+        
+        // Try to update .env file
+        try {
+            java.nio.file.Path envPath = java.nio.file.Paths.get(".env");
+            if (java.nio.file.Files.exists(envPath)) {
+                String content = java.nio.file.Files.readString(envPath);
+                if (content.contains("GEMINI_API_KEY=")) {
+                    content = content.replaceAll("GEMINI_API_KEY=.*", "GEMINI_API_KEY=" + key);
+                } else {
+                    content += "\nGEMINI_API_KEY=" + key + "\n";
+                }
+                java.nio.file.Files.writeString(envPath, content);
+            } else {
+                java.nio.file.Files.writeString(envPath, "GEMINI_API_KEY=" + key + "\n");
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to write .env file: " + e.getMessage());
+        }
+        
+        return ResponseEntity.ok("API Key updated");
     }
 
     @GetMapping("/test-models")
