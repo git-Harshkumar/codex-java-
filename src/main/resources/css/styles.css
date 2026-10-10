@@ -1,0 +1,124 @@
+.root {
+    -fx-font-family: "Arial", sans-serif;
+    -fx-background-color: #FAF6EC;
+}
+
+.neo-button {
+    -fx-background-color: #1A1A1A;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 24px;
+    -fx-background-radius: 100px;
+    -fx-border-color: #1A1A1A;
+    -fx-border-width: 3px;
+    -fx-border-radius: 100px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, #1A1A1A, 0, 1.0, 4, 4);
+}
+
+.neo-button:hover {
+    -fx-translate-y: 2px;
+    -fx-translate-x: 2px;
+    -fx-effect: dropshadow(three-pass-box, #1A1A1A, 0, 1.0, 2, 2);
+}
+
+.neo-button:pressed {
+    -fx-translate-y: 4px;
+    -fx-translate-x: 4px;
+    -fx-effect: null;
+}
+
+.neo-button-action {
+    -fx-background-color: #F5A868;
+    -fx-text-fill: #1A1A1A;
+}
+
+.neo-card {
+    -fx-background-color: #C9B8F5; /* default lavender, can be overridden */
+    -fx-border-color: #1A1A1A;
+    -fx-border-width: 3px;
+    -fx-border-radius: 24px;
+    -fx-background-radius: 24px;
+    -fx-effect: dropshadow(three-pass-box, #1A1A1A, 0, 1.0, 6, 6);
+    -fx-padding: 24px;
+}
+
+.neo-card:hover {
+    -fx-translate-y: 2px;
+    -fx-translate-x: 2px;
+    -fx-effect: dropshadow(three-pass-box, #1A1A1A, 0, 1.0, 4, 4);
+}
+
+.neo-input {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #1A1A1A;
+    -fx-border-width: 3px;
+    -fx-border-radius: 100px;
+    -fx-background-radius: 100px;
+    -fx-padding: 12px 24px;
+    -fx-font-size: 16px;
+    -fx-prompt-text-fill: #888888;
+    -fx-effect: dropshadow(three-pass-box, #1A1A1A, 0, 1.0, 4, 4);
+}
+
+.neo-input:focused {
+    -fx-border-color: #8FD6B0;
+    -fx-effect: dropshadow(three-pass-box, #8FD6B0, 0, 1.0, 4, 4);
+}
+
+.neo-navbar {
+    -fx-background-color: #1A1A1A;
+    -fx-background-radius: 100px;
+    -fx-padding: 10px 20px;
+    -fx-effect: dropshadow(three-pass-box, #1A1A1A, 0, 1.0, 6, 6);
+}
+
+.nav-item {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 100px;
+    -fx-cursor: hand;
+}
+
+.nav-item:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item-active {
+    -fx-background-color: #8FD6B0;
+    -fx-text-fill: #1A1A1A;
+}
+
+/* Headings and Texts */
+.heading-large {
+    -fx-font-size: 32px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #1A1A1A;
+    -fx-letter-spacing: -1px; /* JavaFX might not fully support this natively via CSS, but we set it just in case */
+}
+
+.stat-number {
+    -fx-font-size: 48px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #1A1A1A;
+}
+
+.neo-chip {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #1A1A1A;
+    -fx-border-width: 2px;
+    -fx-background-radius: 100px;
+    -fx-border-radius: 100px;
+    -fx-padding: 6px 16px;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, #1A1A1A, 0, 1.0, 2, 2);
+}
+
+.neo-chip-active {
+    -fx-background-color: #8FD6B0;
+}

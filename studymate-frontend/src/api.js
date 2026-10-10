@@ -1,0 +1,76 @@
+const BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:8080';
+
+export const api = {
+  // AI endpoints
+  ask: (question) =>
+    fetch(`${BASE_URL}/api/ai/ask`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+    }).then(r => r.text()),
+
+  explainTopic: (topic, level) =>
+    fetch(`${BASE_URL}/api/ai/explain?topic=${encodeURIComponent(topic)}&level=${encodeURIComponent(level)}`)
+      .then(r => r.text()),
+
+  explainCode: (code, language) =>
+    fetch(`${BASE_URL}/api/ai/explain-code?language=${encodeURIComponent(language)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: code,
+    }).then(r => r.text()),
+
+  generateQuiz: (topic, difficulty) =>
+    fetch(`${BASE_URL}/api/ai/quiz?topic=${encodeURIComponent(topic)}&difficulty=${encodeURIComponent(difficulty)}`)
+      .then(r => r.json()),
+
+  generateDiagram: (topic) =>
+    fetch(`${BASE_URL}/api/ai/diagram?topic=${encodeURIComponent(topic)}`)
+      .then(r => r.json()),
+
+  // Notes endpoints
+  getNotes: (userId = 1) =>
+    fetch(`${BASE_URL}/api/notes?userId=${userId}`).then(r => r.json()),
+
+  searchNotes: (keyword, userId = 1) =>
+    fetch(`${BASE_URL}/api/notes/search?userId=${userId}&keyword=${encodeURIComponent(keyword)}`).then(r => r.json()),
+
+  createNote: (note) =>
+    fetch(`${BASE_URL}/api/notes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(note),
+    }).then(r => r.json()),
+
+  deleteNote: (id) =>
+    fetch(`${BASE_URL}/api/notes/${id}`, { method: 'DELETE' }),
+
+  // Progress endpoints
+  getProgress: (userId = 1) =>
+    fetch(`${BASE_URL}/api/progress?userId=${userId}`).then(r => r.json()),
+
+  getStats: (userId = 1) =>
+    fetch(`${BASE_URL}/api/progress/stats?userId=${userId}`).then(r => r.json()),
+
+  recordProgress: (data) =>
+    fetch(`${BASE_URL}/api/progress/record`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).then(r => r.json()),
+
+  // Auth endpoints
+  register: (name, email, password) =>
+    fetch(`${BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    }).then(r => r.json()),
+
+  login: (email, password) =>
+    fetch(`${BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    }).then(r => r.json()),
+};

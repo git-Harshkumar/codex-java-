@@ -1,0 +1,84 @@
+:root {
+  --bg-color: #FAF6EC;
+  --text-primary: #1A1A1A;
+  --lavender: #C9B8F5;
+  --orange: #F5A868;
+  --butter: #F5D876;
+  --mint: #8FD6B0;
+  --white: #FFFFFF;
+  --border-width: 3px;
+  --shadow-offset: 6px;
+  --shadow-hover: 4px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.neo-shadow {
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--text-primary);
+  border: var(--border-width) solid var(--text-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.neo-shadow:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-hover) var(--shadow-hover) 0px var(--text-primary);
+}
+
+.neo-shadow-sm {
+  box-shadow: 4px 4px 0px var(--text-primary);
+  border: var(--border-width) solid var(--text-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.neo-shadow-sm:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--text-primary);
+}
+
+.neo-shadow-sm:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px var(--text-primary);
+}
+
+.neo-input {
+  border: var(--border-width) solid var(--text-primary);
+  border-radius: 100px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-family: inherit;
+  box-shadow: 4px 4px 0px var(--text-primary);
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.neo-input:focus {
+  border-color: var(--mint);
+  box-shadow: 4px 4px 0px var(--mint);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
