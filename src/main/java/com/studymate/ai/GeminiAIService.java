@@ -31,10 +31,10 @@ public class GeminiAIService implements AIService {
     }
 
     private static final List<String> MODEL_CANDIDATES = List.of(
-        "gemini-2.5-flash",
-        "gemini-flash-latest",
         "gemini-3.8-flash",
-        "gemini-2.5-pro"
+        "gemini-2.0-flash",
+        "gemini-2.5-pro",
+        "gemini-flash-latest"
     );
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -60,7 +60,7 @@ public class GeminiAIService implements AIService {
 
         for (String model : MODEL_CANDIDATES) {
             try {
-                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+                String url = "https://generativelanguage.googleapis.com/v1/models/" + model + ":generateContent?key=" + apiKey;
                 ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
 
                 if (response.getBody() != null) {
