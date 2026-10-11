@@ -103,7 +103,63 @@ public class GeminiAIService implements AIService {
     @Override
     public String rawPrompt(String prompt) {
         String result = callGemini(prompt);
-        return result != null ? result : mock.rawPrompt(prompt);
+        if (result == null) {
+            return mock.rawPrompt(prompt);
+        }
+        // If this looks like a diagram request, extract only the JSON block
+        // before returning — so the frontend never sees prose wrapping the JSON.
+        String lp = prompt.toLowerCase();
+        boolean isDiagramRequest =
+            lp.contains("generate a detailed, accurate diagram for:") ||
+            lp.contains("generate a diagram for the topic") ||
+            lp.contains("output this exact json") ||
+            lp.contains("return only the json");
+        if (isDiagramRequest) {
+            return extractJsonFromGeminiResponse(result);
+        }
+        return result;
+    }
+
+    /**
+     * Strips any prose, markdown fences, or preamble from a Gemini response
+     * and returns only the first valid JSON object found.
+     * Falls back to the full string if no JSON object is detected.
+     */
+    private String extractJsonFromGeminiResponse(String text) {
+        if (text == null || text.isBlank()) return text;
+        String trimmed = text.trim();
+
+        // 1. Strip ```json ... ``` or ``` ... ``` fences
+        java.util.regex.Pattern fence = java.util.regex.Pattern.compile(
+            "```(?:json)?\\s*([\\s\\S]*?)```", java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher fm = fence.matcher(trimmed);
+        if (fm.find()) return fm.group(1).trim();
+
+        // 2. Already clean JSON
+        if (trimmed.startsWith("{")) return trimmed;
+
+        // 3. Find first '{' and walk to the matching '}'
+        int start = trimmed.indexOf('{');
+        if (start != -1) {
+            int depth = 0;
+            boolean inStr = false;
+            boolean escape = false;
+            for (int i = start; i < trimmed.length(); i++) {
+                char ch = trimmed.charAt(i);
+                if (escape)          { escape = false; continue; }
+                if (ch == '\\' && inStr) { escape = true; continue; }
+                if (ch == '"')       { inStr = !inStr; continue; }
+                if (inStr)           continue;
+                if (ch == '{')       depth++;
+                else if (ch == '}') {
+                    depth--;
+                    if (depth == 0) return trimmed.substring(start, i + 1);
+                }
+            }
+        }
+
+        // 4. Nothing found — return as-is; frontend extractJSON will handle or report the error
+        return text;
     }
 
     @Override
