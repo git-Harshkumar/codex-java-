@@ -18,15 +18,24 @@ public class NoteController {
         this.noteRepository = noteRepository;
     }
 
+    private Long parseUserId(String userId) {
+        if (userId == null || userId.isBlank()) return 1L;
+        try {
+            return Long.parseLong(userId);
+        } catch (NumberFormatException e) {
+            return Math.abs((long) userId.hashCode());
+        }
+    }
+
     @GetMapping
-    public List<Note> getAllNotes(@RequestParam(defaultValue = "1") Long userId) {
-        return noteRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public List<Note> getAllNotes(@RequestParam(defaultValue = "1") String userId) {
+        return noteRepository.findByUserIdOrderByCreatedAtDesc(parseUserId(userId));
     }
 
     @GetMapping("/search")
-    public List<Note> searchNotes(@RequestParam(defaultValue = "1") Long userId,
+    public List<Note> searchNotes(@RequestParam(defaultValue = "1") String userId,
                                   @RequestParam String keyword) {
-        return noteRepository.findByUserIdAndTitleContainingIgnoreCase(userId, keyword);
+        return noteRepository.findByUserIdAndTitleContainingIgnoreCase(parseUserId(userId), keyword);
     }
 
     @PostMapping

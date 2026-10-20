@@ -19,14 +19,23 @@ public class ProgressController {
         this.progressRepository = progressRepository;
     }
 
+    private Long parseUserId(String userId) {
+        if (userId == null || userId.isBlank()) return 1L;
+        try {
+            return Long.parseLong(userId);
+        } catch (NumberFormatException e) {
+            return Math.abs((long) userId.hashCode());
+        }
+    }
+
     @GetMapping
-    public List<Progress> getProgress(@RequestParam(defaultValue = "1") Long userId) {
-        return progressRepository.findByUserIdOrderByMasteryPctDesc(userId);
+    public List<Progress> getProgress(@RequestParam(defaultValue = "1") String userId) {
+        return progressRepository.findByUserIdOrderByMasteryPctDesc(parseUserId(userId));
     }
 
     @PostMapping("/record")
     public Progress recordProgress(@RequestBody Map<String, Object> body) {
-        Long userId = Long.valueOf(body.getOrDefault("userId", "1").toString());
+        Long userId = parseUserId(body.getOrDefault("userId", "1").toString());
         String topicName = body.getOrDefault("topicName", "General").toString();
         int correct = Integer.parseInt(body.getOrDefault("correctAnswers", "0").toString());
         int total = Integer.parseInt(body.getOrDefault("totalQuestions", "1").toString());
@@ -46,8 +55,8 @@ public class ProgressController {
     }
 
     @GetMapping("/stats")
-    public Map<String, Object> getStats(@RequestParam(defaultValue = "1") Long userId) {
-        List<Progress> all = progressRepository.findByUserIdOrderByMasteryPctDesc(userId);
+    public Map<String, Object> getStats(@RequestParam(defaultValue = "1") String userId) {
+        List<Progress> all = progressRepository.findByUserIdOrderByMasteryPctDesc(parseUserId(userId));
         int totalTopics = all.size();
         int totalQuestions = all.stream().mapToInt(Progress::getQuestionsAttempted).sum();
         double avgScore = all.stream().mapToInt(Progress::getMasteryPct).average().orElse(0);

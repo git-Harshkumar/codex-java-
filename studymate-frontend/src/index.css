@@ -82,3 +82,62 @@ h1, h2, h3, h4, h5, h6 {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Neo-Brutalism Utilities */
+.neo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 2px solid var(--text-primary);
+  box-shadow: 2px 2px 0px var(--text-primary);
+  background-color: var(--white);
+  color: var(--text-primary);
+}
+
+.neo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 2px solid var(--text-primary);
+  font-weight: 800;
+  font-size: 13px;
+  background-color: var(--white);
+  color: var(--text-primary);
+  box-shadow: 3px 3px 0px var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+}
+
+.neo-chip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--text-primary);
+  background-color: #FFF9E6;
+}
+
+.neo-chip:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--text-primary);
+}
+
+.neo-chip.active {
+  background-color: var(--text-primary);
+  color: var(--white);
+}
+
+@keyframes neo-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-neo-pulse {
+  animation: neo-pulse 2s infinite ease-in-out;
+}

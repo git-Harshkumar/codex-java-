@@ -62,4 +62,32 @@ public class AuthController {
             "role", user.getRole()
         ));
     }
+
+    @PostMapping("/google")
+    public ResponseEntity<?> googleAuth(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String name = body.getOrDefault("name", "Student");
+        String photoUrl = body.getOrDefault("photoUrl", "");
+
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+        }
+
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setName(name != null && !name.isBlank() ? name : "Student");
+            newUser.setEmail(email);
+            newUser.setPassword("GOOGLE_AUTH_USER");
+            newUser.setRole("GOOGLE");
+            return userRepository.save(newUser);
+        });
+
+        java.util.Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("id", user.getId());
+        resp.put("name", user.getName());
+        resp.put("email", user.getEmail());
+        resp.put("role", user.getRole());
+        resp.put("photoUrl", photoUrl != null ? photoUrl : "");
+        return ResponseEntity.ok(resp);
+    }
 }

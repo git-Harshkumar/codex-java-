@@ -8,7 +8,7 @@
  *   - Color legend
  *   - Step-highlighting from parent
  */
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, forwardRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -180,16 +180,19 @@ const InnerCanvas = ({ nodes, edges, onNodeClick, highlightIds }) => {
   );
 };
 
-/* ── Public export ────────────────────────────────────────────────── */
-const DiagramCanvas = ({ nodes, edges, onNodeClick, highlightIds, height = 420 }) => (
-  <div style={{
-    width: '100%', height,
-    border: '3px solid #1A1A1A',
-    borderRadius: '18px',
-    overflow: 'hidden',
-    boxShadow: '6px 6px 0 #1A1A1A',
-    background: '#FAF6EC',
-  }}>
+/* ── Public export (forwardRef so parent can snapshot it) ─────────── */
+const DiagramCanvas = forwardRef(({ nodes, edges, onNodeClick, highlightIds, height = 420 }, ref) => (
+  <div
+    ref={ref}
+    style={{
+      width: '100%', height,
+      border: '3px solid #1A1A1A',
+      borderRadius: '18px',
+      overflow: 'hidden',
+      boxShadow: '6px 6px 0 #1A1A1A',
+      background: '#FAF6EC',
+    }}
+  >
     <ReactFlowProvider>
       <InnerCanvas
         nodes={nodes}
@@ -199,6 +202,6 @@ const DiagramCanvas = ({ nodes, edges, onNodeClick, highlightIds, height = 420 }
       />
     </ReactFlowProvider>
   </div>
-);
+));
 
 export default DiagramCanvas;

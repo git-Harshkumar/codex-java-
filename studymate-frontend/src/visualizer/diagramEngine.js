@@ -705,7 +705,7 @@ function getPreset(topic) {
   //    like "Generate a flowchart showing how binary search finds 23..."
   const keywordsMap = [
     { match: ['binary search'],             preset: PRESETS['bst'] },          // BST has search steps
-    { match: ['binary tree'],               preset: PRESETS['binary tree'] },
+    { match: ['binary tree', 'tree traversal', 'preorder', 'inorder', 'postorder', 'pre order', 'in order', 'post order'], preset: PRESETS['binary tree'] },
     { match: ['bst', 'binary search tree'], preset: PRESETS['bst'] },
     { match: ['stack', 'lifo'],             preset: PRESETS['stack'] },
     { match: ['queue', 'fifo'],             preset: PRESETS['queue'] },
@@ -742,7 +742,7 @@ function getPreset(topic) {
 function detectDiagramType(topic) {
   const t = topic.toLowerCase();
   if (/sort|search|find|binary search|linear search|hash/.test(t))            return 'flowchart';
-  if (/tree|trie|heap|bst|avl|red.black|b.tree/.test(t))                     return 'tree';
+  if (/tree|trie|heap|bst|avl|red.black|b.tree|traversal|preorder|inorder|postorder|pre-order|in-order|post-order/.test(t)) return 'tree';
   if (/graph|bfs|dfs|dijkstra|prim|kruskal|topological|mst/.test(t))         return 'graph';
   if (/tcp|http|request|response|handshake|dns|protocol|api call/.test(t))   return 'sequence';
   if (/osi|layer|network model|internet/.test(t))                             return 'layered';
@@ -803,15 +803,31 @@ function extractJSON(text) {
 
   const trimmed = text.trim();
 
+  const tryParse = (str) => {
+    try {
+      return JSON.parse(str);
+    } catch (_) {
+      try {
+        // Fix raw newlines inside string values
+        const cleaned = str.replace(/[\u0000-\u001F]+/g, (m) => m === '\t' ? '\\t' : ' ');
+        return JSON.parse(cleaned);
+      } catch (__) {
+        return null;
+      }
+    }
+  };
+
   // 1. Markdown code fence: ```json ... ``` or ``` ... ```
   const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fenceMatch) {
-    try { return JSON.parse(fenceMatch[1].trim()); } catch (_) { /* fall through */ }
+    const res = tryParse(fenceMatch[1].trim());
+    if (res) return res;
   }
 
   // 2. Raw JSON (ideal path)
   if (trimmed.startsWith('{')) {
-    try { return JSON.parse(trimmed); } catch (_) { /* fall through */ }
+    const res = tryParse(trimmed);
+    if (res) return res;
   }
 
   // 3. JSON buried inside prose — find first { and walk to matching }
@@ -828,7 +844,9 @@ function extractJSON(text) {
       else if (ch === '}') {
         depth--;
         if (depth === 0) {
-          try { return JSON.parse(trimmed.slice(start, i + 1)); } catch (_) { break; }
+          const res = tryParse(trimmed.slice(start, i + 1));
+          if (res) return res;
+          break;
         }
       }
     }

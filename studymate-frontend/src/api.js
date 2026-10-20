@@ -30,34 +30,42 @@ export const api = {
 
   // Notes endpoints
   getNotes: (userId = 1) =>
-    fetch(`${BASE_URL}/api/notes?userId=${userId}`).then(r => r.json()),
+    fetch(`${BASE_URL}/api/notes?userId=${userId}`)
+      .then(r => (r.ok ? r.json() : []))
+      .catch(() => []),
 
   searchNotes: (keyword, userId = 1) =>
-    fetch(`${BASE_URL}/api/notes/search?userId=${userId}&keyword=${encodeURIComponent(keyword)}`).then(r => r.json()),
+    fetch(`${BASE_URL}/api/notes/search?userId=${userId}&keyword=${encodeURIComponent(keyword)}`)
+      .then(r => (r.ok ? r.json() : []))
+      .catch(() => []),
 
   createNote: (note) =>
     fetch(`${BASE_URL}/api/notes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(note),
-    }).then(r => r.json()),
+    }).then(r => (r.ok ? r.json() : null)),
 
   deleteNote: (id) =>
     fetch(`${BASE_URL}/api/notes/${id}`, { method: 'DELETE' }),
 
   // Progress endpoints
   getProgress: (userId = 1) =>
-    fetch(`${BASE_URL}/api/progress?userId=${userId}`).then(r => r.json()),
+    fetch(`${BASE_URL}/api/progress?userId=${userId}`)
+      .then(r => (r.ok ? r.json() : []))
+      .catch(() => []),
 
   getStats: (userId = 1) =>
-    fetch(`${BASE_URL}/api/progress/stats?userId=${userId}`).then(r => r.json()),
+    fetch(`${BASE_URL}/api/progress/stats?userId=${userId}`)
+      .then(r => (r.ok ? r.json() : { totalTopics: 0, totalQuestions: 0, avgScore: 0, streak: 0 }))
+      .catch(() => ({ totalTopics: 0, totalQuestions: 0, avgScore: 0, streak: 0 })),
 
   recordProgress: (data) =>
     fetch(`${BASE_URL}/api/progress/record`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    }).then(r => r.json()),
+    }).then(r => (r.ok ? r.json() : null)),
 
   // Auth endpoints
   register: (name, email, password) =>
@@ -73,4 +81,11 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     }).then(r => r.json()),
+
+  googleAuth: (payload) =>
+    fetch(`${BASE_URL}/api/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(r => (r.ok ? r.json() : null)).catch(() => null),
 };

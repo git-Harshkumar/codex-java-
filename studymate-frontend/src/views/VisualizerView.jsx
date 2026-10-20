@@ -10,7 +10,7 @@
  *   │  Walkthrough · Operations · Explanation · AI Q&A drawer   │
  *   └──────────────────────────────────────────────────────────┘
  */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import NeoButton from '../components/NeoButton';
 import { api } from '../api';
 import DiagramCanvas     from '../visualizer/DiagramCanvas';
@@ -90,6 +90,7 @@ const VisualizerView = ({ user }) => {
   const [walkthroughSteps, setWalkthroughSteps] = useState([]);
   const [toast,            setToast]            = useState('');
   const [aiPanelOpen,      setAiPanelOpen]      = useState(false);
+  const canvasRef = useRef(null); // ref to the DiagramCanvas DOM wrapper
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2800); };
 
@@ -147,17 +148,43 @@ const VisualizerView = ({ user }) => {
     if (!diagram) return;
     const userId = user?.id || 1;
     const { meta } = diagram;
+    showToast('📸 Capturing snapshot...');
     try {
+      // Capture a PNG snapshot of the live canvas
+      let snapshot = null;
+      if (canvasRef.current) {
+        try {
+          const html2canvas = (await import('html2canvas')).default;
+          const cvs = await html2canvas(canvasRef.current, {
+            useCORS: true,
+            backgroundColor: '#FAF6EC',
+            scale: 1.5,
+            logging: false,
+          });
+          snapshot = cvs.toDataURL('image/png');
+        } catch (snapErr) {
+          console.warn('Snapshot failed, saving without image:', snapErr);
+        }
+      }
+      // Embed full diagram JSON + snapshot image so NotesView can show both
+      const diagramPayload = JSON.stringify({
+        __type:   'visualizer_diagram',
+        nodes:    diagram.nodes,
+        edges:    diagram.edges,
+        meta:     diagram.meta,
+        snapshot,                // base64 PNG or null
+      });
       await api.createNote({
         title:   `Diagram: ${meta.title}`,
-        content: `${meta.description}\n\nComponents:\n${(meta.components || []).map(c => `• ${c.name}: ${c.role}`).join('\n')}`,
+        content: diagramPayload,
         topic:   meta.category || 'CS',
-        tags:    ['visualizer', meta.category],
+        tags:    ['visualizer', meta.category || 'CS'],
         userId,
       });
       showToast('✅ Saved to Notes!');
     } catch { showToast('❌ Could not save note.'); }
   };
+
 
   const hasDiagram = !!diagram && !loading;
 
@@ -261,6 +288,7 @@ const VisualizerView = ({ user }) => {
         )}
         {hasDiagram && (
           <DiagramCanvas
+            ref={canvasRef}
             nodes={diagram.nodes}
             edges={diagram.edges}
             onNodeClick={handleNodeClick}

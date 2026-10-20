@@ -10,13 +10,14 @@ const ProgressView = ({ user, activeTab }) => {
 
   useEffect(() => {
     if (activeTab === 'Progress' || !activeTab) {
-      api.getProgress(userId).then(setProgress).catch(() => setProgress([]));
+      api.getProgress(userId).then(data => setProgress(Array.isArray(data) ? data : [])).catch(() => setProgress([]));
       api.getStats(userId).then(setStats).catch(() => {});
     }
   }, [userId, activeTab]);
 
-  const strong = progress.filter(p => p.masteryPct >= 70);
-  const weak = progress.filter(p => p.masteryPct < 70);
+  const safeProgress = Array.isArray(progress) ? progress : [];
+  const strong = safeProgress.filter(p => p.masteryPct >= 70);
+  const weak = safeProgress.filter(p => p.masteryPct < 70);
   const recommended = weak.length > 0 ? weak[weak.length - 1] : null;
 
   const StatCard = ({ title, value, color }) => (

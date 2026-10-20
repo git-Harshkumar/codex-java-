@@ -3,7 +3,7 @@ package com.studymate.ai;
 import com.studymate.model.Diagram;
 import com.studymate.model.Quiz;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
+// @Primary removed — GroqAIService is now the primary AI bean
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * it delegates to MockAIService for rich, topic-aware fallback responses.
  */
 @Service
-@Primary
 public class GeminiAIService implements AIService {
 
     @Value("${gemini.api.key:}")
