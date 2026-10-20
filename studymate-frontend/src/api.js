@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:8080';
+export const BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:8080';
 
 export const api = {
   // AI endpoints
@@ -20,8 +20,22 @@ export const api = {
       body: code,
     }).then(r => r.text()),
 
-  generateQuiz: (topic, difficulty) =>
-    fetch(`${BASE_URL}/api/ai/quiz?topic=${encodeURIComponent(topic)}&difficulty=${encodeURIComponent(difficulty)}`)
+  explainRaw: (prompt) =>
+    fetch(`${BASE_URL}/api/ai/raw`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    }).then(r => r.text()),
+
+  saveApiKey: (key) =>
+    fetch(`${BASE_URL}/api/ai/key`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    }),
+
+  generateQuiz: (topic, difficulty, count = 5) =>
+    fetch(`${BASE_URL}/api/ai/quiz?topic=${encodeURIComponent(topic)}&difficulty=${encodeURIComponent(difficulty)}&count=${count}`)
       .then(r => r.json()),
 
   generateDiagram: (topic) =>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NeoCard from '../components/NeoCard';
 import NeoButton from '../components/NeoButton';
-import { api } from '../api';
+import { api, BASE_URL } from '../api';
 
 const LANGUAGES = ['Java', 'Python', 'JavaScript', 'C++', 'C', 'TypeScript', 'SQL', 'Kotlin'];
 
@@ -191,7 +191,7 @@ const CodeExplainerView = ({ user }) => {
     try {
       const fullPrompt = `You are an expert code analyst. Analyze the following code exactly as written. First, determine the true programming language of the code (the user thinks it might be ${detectedLang}, but verify this yourself). Then, respond entirely in the context of the TRUE language's best practices, idioms, and conventions. Do NOT use emojis.\n\n${mode.prompt}\n\nCode:\n\`\`\`\n${code}\n\`\`\``;
 
-      const response = await fetch('http://localhost:8080/api/ai/raw', {
+      const response = await fetch(`${BASE_URL}/api/ai/raw`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: fullPrompt })

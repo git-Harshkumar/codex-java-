@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import NeoCard from '../components/NeoCard';
 import NeoButton from '../components/NeoButton';
-import { api } from '../api';
+import { api, BASE_URL } from '../api';
 
 const QuizView = ({ user, onQuizComplete }) => {
   const [topic, setTopic] = useState('');
@@ -32,7 +32,7 @@ const QuizView = ({ user, onQuizComplete }) => {
 
   const startQuiz = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/ai/quiz?topic=${encodeURIComponent(topic || 'DSA')}&difficulty=${encodeURIComponent(difficulty)}&count=${numQuestions}`);
+      const response = await fetch(`${BASE_URL}/api/ai/quiz?topic=${encodeURIComponent(topic || 'DSA')}&difficulty=${encodeURIComponent(difficulty)}&count=${numQuestions}`);
       const data = await response.json();
       setQuiz(data);
       setCurrentQ(0);

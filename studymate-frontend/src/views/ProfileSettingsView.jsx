@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import NeoCard from '../components/NeoCard';
 import NeoButton from '../components/NeoButton';
-import { api } from '../api';
+import { api, BASE_URL } from '../api';
 
 const ProfileSettingsView = ({ user }) => {
   const [apiKey, setApiKey] = useState('');
@@ -67,7 +67,7 @@ const ProfileSettingsView = ({ user }) => {
                 onClick={() => {
                   if (!apiKey.trim()) return;
                   setStatus('Saving...');
-                  fetch('http://localhost:8080/api/ai/key', {
+                  fetch(`${BASE_URL}/api/ai/key`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: apiKey })

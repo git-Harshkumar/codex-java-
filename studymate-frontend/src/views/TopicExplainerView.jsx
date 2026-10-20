@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NeoCard from '../components/NeoCard';
 import NeoButton from '../components/NeoButton';
+import { BASE_URL } from '../api';
 
 const SECTION_COLORS = {
   '📌': '#C9B8F5',
@@ -158,7 +159,7 @@ const TopicExplainerView = ({ user }) => {
     setActiveMode(suffix);
     try {
       const currentTopic = (topicVal || 'Binary Search Tree') + (suffix ? '. ' + suffix : '');
-      const response = await fetch(`http://localhost:8080/api/ai/explain?topic=${encodeURIComponent(currentTopic)}&level=${encodeURIComponent(levelVal)}`);
+      const response = await fetch(`${BASE_URL}/api/ai/explain?topic=${encodeURIComponent(currentTopic)}&level=${encodeURIComponent(levelVal)}`);
       const data = await response.text();
       setExplanation({ title: `${topicVal || 'Binary Search Tree'} (${levelVal})`, content: data });
     } catch (error) {
