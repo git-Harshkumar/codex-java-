@@ -60,6 +60,10 @@ const AuthView = ({ onLogin }) => {
   /* ── Google Sign-In ───────────────────────────────────────────── */
   const handleGoogle = async () => {
     setError('');
+    if (!auth) {
+      setError('Firebase API keys are missing. Please add VITE_FIREBASE_* environment variables in Vercel and redeploy.');
+      return;
+    }
     setGLoading(true);
     try {
       const result = await signInWithPopup(auth, provider);
